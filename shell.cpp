@@ -12,6 +12,14 @@ int achaH(std::vector<int>&  arrayTam, int size){
     return aux;
 }
 
+// Função que imprime o vetor
+void imprimeVetor(const std::vector<int>& vetor){
+    for(int i=0; i < vetor.size(); i++){
+        std::cout << vetor[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
 // Função que imprime o vetor destacando os elementos trocados
 void imprimeTroca(const std::vector<int>& vetor, int key, int next){
     for(int i=0; i < vetor.size(); i++){
@@ -54,7 +62,10 @@ void insertionShell(std::vector<int>& array, int h){
             int prox = i + h;
             if(array[chave] > array[prox]){
                 insereShell(array, chave, prox, h);
-            }            
+            }  
+
+            // Apagar Depois que funcionar 
+            std::cout << "insertionShell - Passada: " << i+1 << " de " << h << std::endl;         
         }
     // imprimeVetor(array);
 
@@ -76,7 +87,17 @@ int main(){
    */
     while(h>=0){
         insertionShell(array, pot2[h]);
+
+        // Apagar depois de funcionar
+        std::cout << "====================================================" << std::endl;
+
         h--;
     }
+
+    // Apagar depois de funcionar
+    std::cout << "===   Vetor Ordenado   ===" << std::endl;
+
+    imprimeVetor(array);
+
     return 0;
 }
