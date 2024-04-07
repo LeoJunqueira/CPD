@@ -33,8 +33,8 @@ void imprimeTroca(const std::vector<int>& vetor, int key, int next){
 }
 
 // Função que compara os elementos do vetor
-void insereShell(std::vector<int>& vetor, int key, int next, int group){
-    while(key >= 0){
+void insereShell(std::vector<int>& vetor, int key, int next, int jump){
+    while(key >= 0 && vetor[key] > vetor[next]){
         if(vetor[next] < vetor[key]){
             int swap = vetor[next];
             vetor[next] = vetor[key];
@@ -44,28 +44,45 @@ void insereShell(std::vector<int>& vetor, int key, int next, int group){
         //Apagar depois que funcionar
         imprimeTroca(vetor, key, next);
 
-        next = next - group;
-        key = key - group;
+        next = next - jump;
+        key = key - jump;
     }
 }
 
-void insertionShell(std::vector<int>& array, int h){     
+void insertionShell(std::vector<int>& array, int salto){     
     
     // imprimeVetor(array);
     
-        // A "base" mantém a posição da "chave"
+        // O "i" mantém a posição da "chave"
         // A "chave" é a posição usada para comparar com as próximas posições
         // O "prox" é a nova posição que vai ser comparada com a "chave"
 
-        for(int i = 0; i < h; i++){    
+        for(int i = 0; i < salto; i++){    
             int chave = i;
-            int prox = i + h;
-            if(array[chave] > array[prox]){
-                insereShell(array, chave, prox, h);
-            }  
+            int prox = i + salto;
 
+            while(prox <= (array.size()-1)){
+
+                // Apagar Depois que funcionar 
+                std::cout << "Chave: " << array[chave] << "  --- Próximo: " << array[prox] << std::endl;
+
+                if(array[chave] > array[prox]){
+                    insereShell(array, chave, prox, salto);
+                }
+                
+                chave = chave + salto;
+                prox = prox + salto;
+
+                // Apagar Depois que funcionar 
+                // std::cout << "Chave: " << array[chave] << "  --- Próximo: " << array[prox] << std::endl;
+
+                // Apagar Depois que funcionar 
+                std::cout << "insertionShell - Índice da chave: " << chave << " Indice do próximo: " << prox << std::endl;  
+                
+            }  
             // Apagar Depois que funcionar 
-            std::cout << "insertionShell - Passada: " << i+1 << " de " << h << std::endl;         
+            imprimeVetor(array);
+
         }
     // imprimeVetor(array);
 
@@ -79,25 +96,42 @@ int main(){
     int tam = array.size();   
 
     // h é o indice para usar com o array de cada função.
+    int s = 1;
     int h = achaH(pot2, tam);
-    /*
+    // int salto = pot2[s];
+
+    imprimeVetor(array);
+    
+    // Apagar depois que funcionar
+    ///*
     std:: cout << "Esse eh o Tam: " << tam << std::endl;
-    std:: cout << "Esse eh o indice do pot2: " << h << std::endl;
-    std:: cout << "Esse eh o h: " << pot2[h] << std::endl;
-   */
-    while(h>=0){
-        insertionShell(array, pot2[h]);
+    std:: cout << "Esse eh apenas h: " << h << std::endl;
+    std:: cout << "Esse eh o pot2[h]: " << pot2[h] << std::endl;
+    std:: cout << "Esse eh o salto: " << pot2[s] << std::endl;
+    //*/
+
+    ///*
+    while(h>0){
 
         // Apagar depois de funcionar
-        std::cout << "====================================================" << std::endl;
+        
+        std::cout << std::endl << "==============  H: " << pot2[h] << "  ======================================" << std::endl << std::endl;
+        
 
+        insertionShell(array, pot2[s]);        
+
+        s++;
         h--;
     }
+    
+    insertionShell(array, 1);
 
     // Apagar depois de funcionar
     std::cout << "===   Vetor Ordenado   ===" << std::endl;
 
     imprimeVetor(array);
+
+    //*/
 
     return 0;
 }
