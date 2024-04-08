@@ -146,7 +146,7 @@ int main(){
 
 
 std::vector<int> array;
-std::vector<std::vector<int>> matrizSaida;
+std::vector<std::vector<string>> matrizSaida;
 
 
 for (const auto& linha : matriz) {
@@ -179,20 +179,20 @@ for (const auto& linha : matriz) {
 
     
     imprimeVetor(arrayPot2);
-    matrizSaida.push_back(arrayPot2); // Adiciona o vetor da linha ao vetor da matriz
+    matrizSaida.push_back(std::to_string(arrayPot2)); // Adiciona o vetor da linha ao vetor da matriz
     escrita << "SEQ=SHELL" << std::endl;
     shell(arrayPot2, pot2, p);
     // matrizSaida.push_back(arrayPot2); // Adiciona o vetor da linha ao vetor da matriz
     
 
     imprimeVetor(arrayKnuth);
-    matrizSaida.push_back(arrayKnuth); // Adiciona o vetor da linha ao vetor da matriz
+    matrizSaida.push_back(std::to_string(arrayKnuth)); // Adiciona o vetor da linha ao vetor da matriz
     escrita << "SEQ=KNUTH" << std::endl;
     shell(arrayKnuth, knuth, k);
     // matrizSaida.push_back(arrayKnuth); // Adiciona o vetor da linha ao vetor da matriz
 
     imprimeVetor(arrayCiura);
-    matrizSaida.push_back(arrayCiura); // Adiciona o vetor da linha ao vetor da matriz
+    matrizSaida.push_back(std::to_string(arrayCiura)); // Adiciona o vetor da linha ao vetor da matriz
     escrita << "SEQ=CIURA" << std::endl;
     shell(arrayCiura, ciura, c);
     // matrizSaida.push_back(arrayCiura); // Adiciona o vetor da linha ao vetor da matriz
@@ -211,11 +211,26 @@ std::ofstream escrita("saida.txt"); // Abre o arquivo "saida.txt" para escrita
 
     // Escreve a matriz no arquivo
     for (const auto& linha : matrizSaida) {
-        for (int num : linha) {
-            escrita << num << " ";
+        for (const auto& valor : linha) {
+            escrita << valor << " ";
         }
         escrita << std::endl; // Nova linha para cada linha da matriz
     }
+
+////////////////////////////////////////////////////////////////////////////////////
+
+// Como converter numeros em strings
+
+  // Vetor de números a ser copiado para uma linha da matriz
+    std::vector<int> novoVetor = {10, 11, 12};
+
+    // Converter os números em strings
+    std::vector<std::string> novoVetorString;
+    for (int num : novoVetor) {
+        novoVetorString.push_back(std::to_string(num));
+    }
+
+/////////////////////////////////////////////////////////////////////////////////////
 
     escrita.close(); // Fecha o arquivo
 
