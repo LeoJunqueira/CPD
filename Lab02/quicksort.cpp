@@ -2,19 +2,49 @@
 #include <vector>     // Biblioteca para vetores
 #include <random>     // Biblioteca do Random 
 
+/////////////////////   FUNÇOẼS PARA TESTE   ///////////////////
+
 // Função que imprime o vetor
 void imprimeVetor(const std::vector<int>& vetor){
-    for(int i=0; i < vetor.size(); i++){
+    for(int i=1; i < vetor.size(); i++){    // Não imprime o índice zero (tamanho do vetor)
         std::cout << vetor[i] << " ";
     }
     std::cout << std::endl;
 }
 
+void imprimeDetalhe(const std::vector<int>& vetor, int key, int larger){
+    for(int i = 1; i < vetor.size(); i++){    // Não imprime o índice zero (tamanho do vetor)
+        if ((i == key) && (i == larger)) {
+            std::cout << "((" << vetor[i] << ")) ";
+        } else if (i == key) {
+            std::cout << "{" << vetor[i] << "} ";
+        } else if (i == larger) {
+            std::cout << "[" << vetor[i] << "] ";
+        } else {
+            std::cout << vetor[i] << " ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+/*
 // Função que imprime o vetor destacando os elementos trocados
 void imprimeStatus(const std::vector<int>& vetor, int key, int larger){
-    for(int i=0; i < vetor.size(); i++){
-        if(i == key || i == larger){
-            std::cout << "(" << vetor[i] << ") ";
+    for(int i=1; i < vetor.size(); i++){    // Não imprime o índice zero (tamanho do vetor)
+        if((i == key) || (i == larger)){
+                std::cout << "(" << vetor[i] << ") ";
+        }else
+            std::cout << vetor[i] << " ";
+    }
+    std::cout << std::endl;
+}
+*/
+
+// Função que imprime o vetor destacando os elementos trocados
+void imprimeParticao(const std::vector<int>& vetor, int fst, int lst){
+    for(int i=1; i < vetor.size(); i++){    // Não imprime o índice zero (tamanho do vetor)
+        if((i == fst) || (i == lst)){
+            std::cout << "*" << vetor[i] << "* ";
         }else{
             std::cout << vetor[i] << " ";
         }
@@ -22,7 +52,18 @@ void imprimeStatus(const std::vector<int>& vetor, int key, int larger){
     std::cout << std::endl;
 }
 
+void imprimePivo(const std::vector<int>& vetor, int key){
+    for(int i=1; i < vetor.size(); i++){    // Não imprime o índice zero (tamanho do vetor)
+        if(i == key){
+            std::cout << "<<" << vetor[i] << ">> ";
+        }else{
+            std::cout << vetor[i] << " ";
+        }
+    }
+    std::cout << std::endl;
+}
 
+////////////////////   FIM  -  FUNÇOES TESTE   ///////////////////////////
 
 // Função que recebe um vetor, o primeiro e o último número de índice deste vetor
 // e devolve a mediana deste vetor
@@ -73,18 +114,40 @@ void swap(std::vector<int>& array, int elmtA, int elmtB){
     
 }
 
-void medianaLomuto(std::vector<int> array, int fst, int lst, const std::string& arquivo){
-    imprimeVetor(array);
+void medianaLomuto(std::vector<int>& array, int fst, int lst, const std::string& arquivo){
+    
+    ////////////   Impressões de teste   /////////////
+
+
+    
+    //std::cout << "First: " << array[fst] << std::endl;
+    //std::cout << "Last: " << array[lst] << std::endl;
+
+
+
+
+    // imprimeVetor(array);
+    std::cout << "Partição processada:" << std::endl;
+    imprimeParticao(array, fst, lst);
     int medio = mediana(array, fst, lst);
     std::cout << "Mediana: " << array[medio] << std::endl;
     swap(array, fst, medio);
-    imprimeVetor(array);
+    // imprimeVetor(array);
+    
     int size = lst - fst;
-    int larger = fst +1;  
-    int key;      // Apagar e declarar dentro do FOR 
-    for(int i = 1; i < size; i++){
-        key = i+1;
-        if(array[fst] > array[key]){
+    int larger = fst + 1;
+    int key = fst;      // Apagar e declarar dentro do FOR
+    int step=0;
+    // Impressão de teste
+    // std::cout << "Step: " << step << std::endl;
+    std::cout << "First: " << array[fst] << std::endl;
+    std::cout << "Last: " << array[lst] << std::endl;
+    std::cout << "Larger: " << array[larger] << std::endl;
+    imprimeDetalhe(array, key, larger);
+
+    for(int i = 1; i <= size; i++){
+        key++;
+        if(array[fst] > array[key]){   // Ver a lógica para números iguais  >=
             if(larger == key){
                 larger++;
             }else{
@@ -92,11 +155,17 @@ void medianaLomuto(std::vector<int> array, int fst, int lst, const std::string& 
                 larger++;
             }
         }
-        imprimeStatus(array, key, larger);
+        imprimeDetalhe(array, key, larger);
+        step++;
     }
-    swap(array, fst, larger-1);
-    imprimeStatus(array, key, larger);
+
+    swap(array, fst, larger-1);   // Coloca o pivô na posição correta
     key = larger -1;
+    std::cout << "-----  Final da passada!  -----\n"  << std::endl;
+    imprimePivo(array, key);
+    
+    // std::cout << "Pivô: " << array[key] << std::endl;
+
     if(key>fst){
         medianaLomuto(array, fst, key-1, "stats-mediana-lomuto.txt");
     }
@@ -109,8 +178,8 @@ void medianaLomuto(std::vector<int> array, int fst, int lst, const std::string& 
 
 int main(){
 
-    // std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,13,11,2,7,3,10,5};
-    std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,5,11,2,7,3,10,13};
+    std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,13,11,2,7,3,10,5};
+    // std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,5,11,2,7,3,10,13};
     // std::vector<int> array = {16,9,14,12,1,8,4,5,6,15,13,11,2,7,3,10,16};
     // std::vector<int> array = {16,5,14,12,1,8,4,16,6,15,13,11,2,7,3,10,9};
 
@@ -178,7 +247,7 @@ medianaLomuto(array, first, last, "stats-mediana-lomuto.txt");
 */
 ///////////////   FIM - TESTES DA MEDIANA    //////////////////////////////////
 
-    std::cout << "Rodou!" << std::endl;
+    // std::cout << "Rodou!" << std::endl;
 
     return 0;
 }
