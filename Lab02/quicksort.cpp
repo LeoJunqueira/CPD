@@ -15,13 +15,13 @@ void imprimeVetor(const std::vector<int>& vetor){
 void imprimeDetalhe(const std::vector<int>& vetor, int key, int larger){
     for(int i = 1; i < vetor.size(); i++){    // Não imprime o índice zero (tamanho do vetor)
         if ((i == key) && (i == larger)) {
-            std::cout << "((" << vetor[i] << ")) ";
+            std::cout << "((" << vetor[i] << "))";
         } else if (i == key) {
-            std::cout << "{" << vetor[i] << "} ";
+            std::cout << " {" << vetor[i] << "} ";
         } else if (i == larger) {
-            std::cout << "[" << vetor[i] << "] ";
+            std::cout << " [" << vetor[i] << "] ";
         } else {
-            std::cout << vetor[i] << " ";
+            std::cout << "  " << vetor[i] << "  ";
         }
     }
     std::cout << std::endl;
@@ -69,18 +69,29 @@ void imprimePivo(const std::vector<int>& vetor, int key){
 // e devolve a mediana deste vetor
 int mediana(std::vector<int> array, int first, int last){
     
-    int middle = (last - first)/2;
+    int middle = first + ((last - first)/2);
     int medio;
+
+    /*
+    // std::cout << "Informações recebidas na função mediana:" << std::endl;
+    std::cout << "Índice Mediana First: " << first << std::endl;
+    std::cout << "Índice Mediana Last: " << last << std::endl;
+    std::cout << "Índice Mediana med: " << middle << std::endl;
+    std::cout << "Mediana First: " << array[first] << std::endl;
+    std::cout << "Mediana Last: " << array[last] << std::endl;
+    std::cout << "Mediana med: " << array[middle] << std::endl;
+    */
+
     // if((a > b) && (b > c) || (a < b) && (b < c))
-    if(((array[first] > array[middle]) && (array[middle] > array[last])) || ((array[first] < array[middle]) && (array[middle] < array[last]))){
+    if(((array[first] >= array[middle]) && (array[middle] >= array[last])) || ((array[first] <= array[middle]) && (array[middle] <= array[last]))){
         medio = middle;
     }
     
-    if(((array[middle] > array[first]) && (array[first] > array[last])) || ((array[middle] < array[first]) && (array[first] < array[last]))){
+    if(((array[middle] >= array[first]) && (array[first] >= array[last])) || ((array[middle] <= array[first]) && (array[first] <= array[last]))){
         medio = first;
     }
 
-    if(((array[first] > array[last]) && (array[last] > array[middle])) || ((array[first] < array[last]) && (array[last] < array[middle]))){
+    if(((array[first] >= array[last]) && (array[last] >= array[middle])) || ((array[first] <= array[last]) && (array[last] <= array[middle]))){
         medio = last;
     }
 
@@ -138,11 +149,15 @@ void medianaLomuto(std::vector<int>& array, int fst, int lst, const std::string&
     int larger = fst + 1;
     int key = fst;      // Apagar e declarar dentro do FOR
     int step=0;
+
+    /*
     // Impressão de teste
     // std::cout << "Step: " << step << std::endl;
     std::cout << "First: " << array[fst] << std::endl;
     std::cout << "Last: " << array[lst] << std::endl;
     std::cout << "Larger: " << array[larger] << std::endl;
+    */
+
     imprimeDetalhe(array, key, larger);
 
     for(int i = 1; i <= size; i++){
@@ -166,10 +181,10 @@ void medianaLomuto(std::vector<int>& array, int fst, int lst, const std::string&
     
     // std::cout << "Pivô: " << array[key] << std::endl;
 
-    if(key>fst){
+    if((key-1) > fst){
         medianaLomuto(array, fst, key-1, "stats-mediana-lomuto.txt");
     }
-    if(key<lst){
+    if((key+1) < lst){
         medianaLomuto(array, key+1, lst, "stats-mediana-lomuto.txt");
     }
     // std::cout << "Valor smaller: " << array[smaller] << std::endl;
@@ -178,20 +193,22 @@ void medianaLomuto(std::vector<int>& array, int fst, int lst, const std::string&
 
 int main(){
 
-    std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,13,11,2,7,3,10,5};
+    // std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,13,11,2,7,3,10,5};
     // std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,5,11,2,7,3,10,13};
     // std::vector<int> array = {16,9,14,12,1,8,4,5,6,15,13,11,2,7,3,10,16};
-    // std::vector<int> array = {16,5,14,12,1,8,4,16,6,15,13,11,2,7,3,10,9};
+    std::vector<int> array = {16,5,14,12,1,8,4,16,6,15,13,11,2,7,3,10,9};
 
     int i=1;
     int size = array[0];
     int first = i;
     int last = size;
+    
 /*
 imprimeVetor(array);
 int medio = mediana(array, first, last);
 imprimeVetor(array);
 */
+
 medianaLomuto(array, first, last, "stats-mediana-lomuto.txt");
 
 ///////////////   TESTES DA TROCA    ////////////////////////////////////
