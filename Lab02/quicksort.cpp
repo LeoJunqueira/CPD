@@ -1,8 +1,12 @@
 #include <iostream>   // Biblioteca para entrada e saída
 #include <vector>     // Biblioteca para vetores
 #include <random>     // Biblioteca do Random 
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <ctime>
 
-/////////////////////   FUNÇOẼS PARA TESTE   ///////////////////
+/////////////////////   FUNÇÕES PARA TESTE   ///////////////////
 
 // Função que imprime o vetor
 void imprimeVetor(const std::vector<int>& vetor){
@@ -63,7 +67,7 @@ void imprimePivo(const std::vector<int>& vetor, int key){
     std::cout << std::endl;
 }
 
-////////////////////   FIM  -  FUNÇOES TESTE   ///////////////////////////
+////////////////////   FIM  -  FUNÇÕES TESTE   ///////////////////////////
 
 // Função que recebe um vetor, o primeiro e o último número de índice deste vetor
 // e devolve a mediana deste vetor
@@ -125,40 +129,15 @@ void swap(std::vector<int>& array, int elmtA, int elmtB){
     
 }
 
-void medianaLomuto(std::vector<int>& array, int fst, int lst, const std::string& arquivo){
-    
-    ////////////   Impressões de teste   /////////////
-
-
-    
-    //std::cout << "First: " << array[fst] << std::endl;
-    //std::cout << "Last: " << array[lst] << std::endl;
-
-
-
-
-    // imprimeVetor(array);
-    std::cout << "Partição processada:" << std::endl;
-    imprimeParticao(array, fst, lst);
+void medianaLomuto(std::vector<int>& array, int fst, int lst, int* totalSwap, int* totalRec){
+    (*totalRec)++;
     int medio = mediana(array, fst, lst);
-    std::cout << "Mediana: " << array[medio] << std::endl;
     swap(array, fst, medio);
-    // imprimeVetor(array);
+    (*totalSwap)++;
     
     int size = lst - fst;
     int larger = fst + 1;
     int key = fst;      // Apagar e declarar dentro do FOR
-    int step=0;
-
-    /*
-    // Impressão de teste
-    // std::cout << "Step: " << step << std::endl;
-    std::cout << "First: " << array[fst] << std::endl;
-    std::cout << "Last: " << array[lst] << std::endl;
-    std::cout << "Larger: " << array[larger] << std::endl;
-    */
-
-    imprimeDetalhe(array, key, larger);
 
     for(int i = 1; i <= size; i++){
         key++;
@@ -167,104 +146,326 @@ void medianaLomuto(std::vector<int>& array, int fst, int lst, const std::string&
                 larger++;
             }else{
                 swap(array, larger, key);
+                (*totalSwap)++;
                 larger++;
             }
         }
-        imprimeDetalhe(array, key, larger);
-        step++;
     }
-
     swap(array, fst, larger-1);   // Coloca o pivô na posição correta
+    (*totalSwap)++;
     key = larger -1;
-    std::cout << "-----  Final da passada!  -----\n"  << std::endl;
-    imprimePivo(array, key);
-    
-    // std::cout << "Pivô: " << array[key] << std::endl;
 
     if((key-1) > fst){
-        medianaLomuto(array, fst, key-1, "stats-mediana-lomuto.txt");
+        medianaLomuto(array, fst, key-1, totalSwap, totalRec);
     }
     if((key+1) < lst){
-        medianaLomuto(array, key+1, lst, "stats-mediana-lomuto.txt");
+        medianaLomuto(array, key+1, lst, totalSwap, totalRec);
     }
-    // std::cout << "Valor smaller: " << array[smaller] << std::endl;
-    // std::cout << "Índice smaller: " << smaller << std::endl;
+}
+
+void medianaHoare(std::vector<int>& array, int fst, int lst, int* totalSwap, int* totalRec){
+    (*totalRec)++;
+    int medio = mediana(array, fst, lst);
+    swap(array, fst, medio);
+    (*totalSwap)++;
+    int loKey = fst + 1;
+    int hiKey = lst;
+    int key = fst;
+
+    while(loKey < hiKey){
+        if(array[loKey] > array[fst]){   // Ver a lógica para números iguais  >=
+            while(loKey < hiKey){
+                if(array[hiKey] < array[fst]){
+                    swap(array, loKey, hiKey);
+                    hiKey--;
+                    loKey++;
+                    key++;
+                    (*totalSwap)++;
+                    break;
+                }else{
+                    hiKey--;
+                }
+            }  
+        }else{
+            loKey++;
+            key++;
+        }
+    }
+    if(loKey == hiKey){
+        if(array[loKey] < array[fst])
+            key++;
+    }
+    swap(array, fst, key);   // Coloca o pivô na posição correta
+    (*totalSwap)++;
+    if((key-1) > fst){
+        medianaHoare(array, fst, key-1, totalSwap, totalRec);
+    }
+    if((key+1) < lst){
+        medianaHoare(array, key+1, lst, totalSwap, totalRec);
+    }
+}
+
+void randomLomuto(std::vector<int>& array, int fst, int lst, int* totalSwap, int* totalRec){
+    (*totalRec)++;
+    int rand = random(fst, lst);
+    swap(array, fst, rand);
+    (*totalSwap)++;
+    int medio = mediana(array, fst, lst);
+    swap(array, fst, medio);
+    (*totalSwap)++;
+
+    int size = lst - fst;
+    int larger = fst + 1;
+    int key = fst;      // Apagar e declarar dentro do FOR
+
+    for(int i = 1; i <= size; i++){
+        key++;
+        if(array[fst] > array[key]){   // Ver a lógica para números iguais  >=
+            if(larger == key){
+                larger++;
+            }else{
+                swap(array, larger, key);
+                (*totalSwap)++;
+                larger++;
+            }
+        }
+    }
+    swap(array, fst, larger-1);   // Coloca o pivô na posição correta
+    (*totalSwap)++;
+    key = larger -1;
+
+    if((key-1) > fst){
+        randomLomuto(array, fst, key-1, totalSwap, totalRec);
+    }
+    if((key+1) < lst){
+        randomLomuto(array, key+1, lst, totalSwap, totalRec);
+    }
+}
+
+void randomHoare(std::vector<int>& array, int fst, int lst, int* totalSwap, int* totalRec){
+    (*totalRec)++;
+    int rand = random(fst, lst);
+    swap(array, fst, rand);
+    (*totalSwap)++;
+    int medio = mediana(array, fst, lst);
+    swap(array, fst, medio);
+    (*totalSwap)++;
+    
+    int loKey = fst + 1;
+    int hiKey = lst;
+    int key = fst;
+
+    while(loKey < hiKey){
+        if(array[loKey] > array[fst]){   // Ver a lógica para números iguais  >=
+            while(loKey < hiKey){
+                if(array[hiKey] < array[fst]){
+                    swap(array, loKey, hiKey);
+                    hiKey--;
+                    loKey++;
+                    key++;
+                    (*totalSwap)++;
+                    break;
+                }else{
+                    hiKey--;
+                }
+            }  
+        }else{
+            loKey++;
+            key++;
+        }
+    }
+    if(loKey == hiKey){
+                if(array[loKey] < array[fst])
+                    key++;
+    }
+    swap(array, fst, key);   // Coloca o pivô na posição correta
+    (*totalSwap)++;
+
+    if((key-1) > fst){
+        randomHoare(array, fst, key-1, totalSwap, totalRec);
+    }
+    if((key+1) < lst){
+        randomHoare(array, key+1, lst, totalSwap, totalRec);
+    }
 }
 
 int main(){
 
-    // std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,13,11,2,7,3,10,5};
-    // std::vector<int> array = {16,16,14,12,1,8,4,9,6,15,5,11,2,7,3,10,13};
-    // std::vector<int> array = {16,9,14,12,1,8,4,5,6,15,13,11,2,7,3,10,16};
-    std::vector<int> array = {16,5,14,12,1,8,4,16,6,15,13,11,2,7,3,10,9};
+    std::ifstream arquivo("entrada-quicksort.txt"); // Abre o arquivo "entrada1.txt" para leitura
 
-    int i=1;
-    int size = array[0];
-    int first = i;
-    int last = size;
+    if (!arquivo.is_open()) { // Verifica se o arquivo foi aberto corretamente
+        std::cerr << "Erro ao abrir o arquivo de entrada." << std::endl;
+        return 1;
+    }
+
+    std::vector<std::vector<int>> matriz; // Vetor de vetores para armazenar as linhas da matriz
+
+    std::string linha;
+    while (std::getline(arquivo, linha)) { // Lê cada linha do arquivo
+        std::vector<int> numerosLinha; // Vetor para armazenar os números da linha atual
+
+        std::istringstream iss(linha);
+        int numero;
+        while (iss >> numero) { // Lê cada número da linha
+            numerosLinha.push_back(numero); // Adiciona o número ao vetor da linha atual
+        }
+        matriz.push_back(numerosLinha); // Adiciona o vetor da linha ao vetor da matriz
+    }
+
+    arquivo.close(); // Fecha o arquivo
+
+////////////////   FIM DA LEITURA   ///////////////
+
+
+///////////////   Abre o arquivo de escrita   ////////////////
+    std::ofstream escritaMH("stats-mediana-hoare.txt");
     
-/*
-imprimeVetor(array);
-int medio = mediana(array, first, last);
-imprimeVetor(array);
-*/
+    if (!escritaMH.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de saída." << std::endl;
+    return 1;
+    }
 
-medianaLomuto(array, first, last, "stats-mediana-lomuto.txt");
+    std::vector<int> array;
+    
+    //////////   Mediana Hoare   ///////////
+    for (const auto& linha : matriz) {
+        std::vector<int> array = linha; // Copiar a linha para um novo vetor
+  
+        int i=1;
+        int size = array[0];
+        int first = i;
+        int last = size;
+        int totalSwap = 0;
+        int totalRec = 0;
 
-///////////////   TESTES DA TROCA    ////////////////////////////////////
-// Troquei o nome de algumas variáveis, os testes não vão funcionar
-/*
-    // int swap(array, first, last);   // Chamada da função
-    // int swap(array, smaller, larger);   // Chamada da função
+        // Obtém o tempo de CPU inicial
+        std::clock_t inicio = std::clock();
 
-    std::cout << "Valor do last: " << array[last] << std::endl;
+        std::cout << "**************************   medianaHoare   *************" << std::endl;
+        medianaHoare(array, first, last, &totalSwap, &totalRec);
 
-    swap(array, first, last);
+        // Obtém o tempo de CPU final
+        std::clock_t fim = std::clock();
 
-    std::cout << "Valor do first: " << array[first] << std::endl;
-    std::cout << "Valor do last: " << array[last] << std::endl;
-*/
-///////////////   FIM - TESTES DA TROCA    //////////////////////////////
+        // Calcula o tempo de CPU usado
+        double time = 1000.0 * (fim - inicio) / CLOCKS_PER_SEC;
 
+        escritaMH << "TAMANHO DA ENTRADA " << size << std::endl;
+        escritaMH << "SWAPS " << totalSwap << std::endl;
+        escritaMH << "RECURSOES " << totalRec << std::endl;
+        escritaMH << "TEMPO " << time << std::endl;
+        std::cout << "Mediana Hoare" << totalSwap << std::endl;    
+    }
 
-///////////////   TESTES DO RANDOM    ////////////////////////////////////
-/*
-    // int numR = random(first, last);  // Chamada da função
+    //////////   Mediana Lomuto   ///////////
+    std::ofstream escritaML("stats-mediana-lomuto.txt");
+    
+    if (!escritaML.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de saída." << std::endl;
+    return 1;
+    }
 
-    std::cout << "Índice aleatório: " << numR << std::endl;
-    std::cout << "Número aleatório: " << array[numR] << std::endl;
+    for (const auto& linha : matriz) {
+        std::vector<int> array = linha; // Copiar a linha para um novo vetor
+  
+        int i=1;
+        int size = array[0];
+        int first = i;
+        int last = size;
+        int totalSwap = 0;
+        int totalRec = 0;
 
-    numR = random(1, 10);
-    std::cout << "Número aleatório: " << numR << std::endl;
+        // Obtém o tempo de CPU inicial
+        std::clock_t inicio = std::clock();
 
-    numR = random(1, 10);
-    std::cout << "Número aleatório: " << numR << std::endl;
+        std::cout << "**************************   medianaLomuto   *************" << std::endl;
+        medianaLomuto(array, first, last, &totalSwap, &totalRec);
 
-    numR = random(1, 10);
-    std::cout << "Número aleatório: " << numR << std::endl;
-*/
-///////////////   FIM - TESTES DA RANDOM    //////////////////////////////
+        // Obtém o tempo de CPU final
+        std::clock_t fim = std::clock();
 
+        // Calcula o tempo de CPU usado
+        double time = 1000.0 * (fim - inicio) / CLOCKS_PER_SEC;
 
-///////////////   TESTES DA MEDIANA    //////////////////////////////////
-/*
-    int i=1;
-    int size = array[0];
-    int first = i;
-    int last = size;
+        escritaML << "TAMANHO DA ENTRADA " << size << std::endl;
+        escritaML << "SWAPS " << totalSwap << std::endl;
+        escritaML << "RECURSOES " << totalRec << std::endl;
+        escritaML << "TEMPO " << time << std::endl;
+        std::cout << "Mediana Lomuto" << totalSwap << std::endl;    
+    }
+    
+    //////////   Aleatório Hoare   ///////////
+    std::ofstream escritaRH("stats-aleatorio-hoare.txt"); 
+    
+    if (!escritaRH.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de saída." << std::endl;
+    return 1;
+    }
 
-    // int medio = mediana(array, first, last);  // Chamada da função
+    for (const auto& linha : matriz) {
+        std::vector<int> array = linha; // Copiar a linha para um novo vetor
+  
+        int i=1;
+        int size = array[0];
+        int first = i;
+        int last = size;
+        int totalSwap = 0;
+        int totalRec = 0;
 
-    std::cout << "Tamanho do array: " << size << std::endl;
-    std::cout << "Índice do first: " << first << std::endl;
-    std::cout << "Índice do last: " << last << std::endl;
-    std::cout << "Valor do last: " << array[last] << std::endl;
-    std::cout << "Índice da mediana: " << medio << std::endl;
-    std::cout << "Valor da mediana: " << array[medio] << std::endl;
-*/
-///////////////   FIM - TESTES DA MEDIANA    //////////////////////////////////
+        // Obtém o tempo de CPU inicial
+        std::clock_t inicio = std::clock();
 
-    // std::cout << "Rodou!" << std::endl;
+        std::cout << "**************************   randomHoare   *************" << std::endl;
+        randomHoare(array, first, last, &totalSwap, &totalRec);
 
+        // Obtém o tempo de CPU final
+        std::clock_t fim = std::clock();
+
+        // Calcula o tempo de CPU usado
+        double time = 1000.0 * (fim - inicio) / CLOCKS_PER_SEC;
+
+        escritaRH << "TAMANHO DA ENTRADA " << size << std::endl;
+        escritaRH << "SWAPS " << totalSwap << std::endl;
+        escritaRH << "RECURSOES " << totalRec << std::endl;
+        escritaRH << "TEMPO " << time << std::endl;
+        std::cout << "Random Hoare" << totalSwap << std::endl;    
+    }
+
+    //////////   Aleatorio Lomuto   ///////////
+    std::ofstream escritaRL("stats-aleatorio-lomuto.txt"); 
+    
+    if (!escritaRL.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de saída." << std::endl;
+    return 1;
+    }
+
+    for (const auto& linha : matriz) {
+        std::vector<int> array = linha; // Copiar a linha para um novo vetor
+  
+        int i=1;
+        int size = array[0];
+        int first = i;
+        int last = size;
+        int totalSwap = 0;
+        int totalRec = 0;
+
+        // Obtém o tempo de CPU inicial
+        std::clock_t inicio = std::clock();
+
+        std::cout << "**************************   rondomLomuto   *************" << std::endl;
+        randomLomuto(array, first, last, &totalSwap, &totalRec);
+
+        // Obtém o tempo de CPU final
+        std::clock_t fim = std::clock();
+
+        // Calcula o tempo de CPU usado
+        double time = 1000.0 * (fim - inicio) / CLOCKS_PER_SEC;
+
+        escritaRL << "TAMANHO DA ENTRADA " << size << std::endl;
+        escritaRL << "SWAPS " << totalSwap << std::endl;
+        escritaRL << "RECURSOES " << totalRec << std::endl;
+        escritaRL << "TEMPO " << time << std::endl;
+        std::cout << "Random Lomuto" << totalSwap << std::endl;    
+    }
     return 0;
 }
